@@ -10,25 +10,40 @@ import FS from 'fs';
 // address: 0x7FD984277dAbCa17B9500Cb85427eAa55e23eAFB
 // privatekey: 0x0c32fb4f35c4d7309500cd958d3732f00e48966cde81e58e05389fba1ca69a0b
 
-const web3 = new Web3(ganache.provider());
+const web3 = new Web3('HTTP://127.0.0.1:7545');
 const account = web3.eth.accounts.create();
 
-// const t = web3.eth.Contract(abi);
+const treeChain = new web3.eth.Contract(require('../bc/build/contracts/TreeChain.json').abi, '0x7f141D7E4400B6a282de0cBc892230bE8FBF3C4A');
+// treeChain.methods.trial().call().then(console.log);
+
+// web3.eth.personal.newAccount('hello', (error, address) => {
+//   console.log(address);
+//   web3.eth.personal.unlockAccount(address, 'hello', 100);
+//   // console.log(
+//     // treeChain.methods.addProject('0x016823EB9cc7D1D3B6974171B7977A92D90B3511', 1000, 50, 50).call()
+//     // treeChain.methods.trial().call( (error, result) => {
+//     //   console.log('Errror ' + error);
+//     //   console.log('Result ' + result);
+//     // })
+//     // );
+// })
 
 
-const source = FS.readFileSync('../bc/build/contracts/TreeChain.json');
-const abi = JSON.parse(source).abi;
+// treeChain.methods.addProject('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 1000, 50, 50)
+// .send({from: '0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', gas: 100000}).then(console.log);
+
+// treeChain.methods.getGoal('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
+
+// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
+// treeChain.methods.plant('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 100, 50, 50)
+// .send({from: '0x4E10D8Ee2FcBECE3c526Bdfc51d16DAb25c8A372', gas: 1000000}).then(console.log);
+// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
 
 
-// console.log(abi);
-
-const treeChain = new web3.eth.Contract(abi, '0xd5F2654C2C6c0fBBa11dCa91881AC695684d446F');
-const acc = web3.eth.accounts.create()
-console.log(
-// treeChain.methods.addProject('0x016823EB9cc7D1D3B6974171B7977A92D90B3511', 1000, 50, 50).call()
-treeChain.methods.trial().send({from: acc.address})
-);
-// treeChain.methods.getBalance()
+// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
+treeChain.methods.verify('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 2, true)
+.send({from: '0x4E10D8Ee2FcBECE3c526Bdfc51d16DAb25c8A372', gas: 1000000}).then(console.log);
+// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
 
 
 const PORT = 5000;
@@ -77,6 +92,8 @@ app.post('/api/v1/tree', (req, res) => {
     });
   }
 
+treeChain.methods.plant('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 100, 50, 50)
+.send({from: '0x4E10D8Ee2FcBECE3c526Bdfc51d16DAb25c8A372', gas: 1000000}).then(console.log);
   console.log('Tree added ' + req.body);
 
   return res.status(201).send({
