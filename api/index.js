@@ -42,7 +42,7 @@ app.get('/api/v1/projects/:id', (req, res) => {
 });
 
 app.post('/api/v1/tree', (req, res) => {
-  if (!req.body.address || !req.body.location) {
+  if (!req.body.x || !req.body.y) {
     return res.status(400).send({
       success: 'false',
       message: 'Invalid request!'
@@ -54,6 +54,22 @@ app.post('/api/v1/tree', (req, res) => {
   return res.status(201).send({
     success: 'true',
     message: 'tree added'
+  });
+});
+
+app.post('/api/v1/verify', (req, res) => {
+  if (!req.body.x || !req.body.y || !req.body.id || !req.body.num) {
+    return res.status(400).send({
+      success: 'false',
+      message: 'Invalid request!'
+    });
+  }
+
+  console.log('Tree verified ' + req.body);
+
+  return res.status(201).send({
+    success: 'true',
+    message: 'tree verified'
   });
 });
 
