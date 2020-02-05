@@ -13,39 +13,95 @@ import FS from 'fs';
 const web3 = new Web3('HTTP://127.0.0.1:7545');
 const account = web3.eth.accounts.create();
 
-const treeChain = new web3.eth.Contract(require('../bc/build/contracts/TreeChain.json').abi, '0x7f141D7E4400B6a282de0cBc892230bE8FBF3C4A');
-// treeChain.methods.trial().call().then(console.log);
 
-// web3.eth.personal.newAccount('hello', (error, address) => {
-//   console.log(address);
-//   web3.eth.personal.unlockAccount(address, 'hello', 100);
-//   // console.log(
-//     // treeChain.methods.addProject('0x016823EB9cc7D1D3B6974171B7977A92D90B3511', 1000, 50, 50).call()
-//     // treeChain.methods.trial().call( (error, result) => {
-//     //   console.log('Errror ' + error);
-//     //   console.log('Result ' + result);
-//     // })
-//     // );
-// })
+const contract_address = '0x9456B0DF207Aa07Ae0DEfe819B79ae4344014eD8'
+const project_address = '0x6F4171Bd300586941086F1201c41fc382510408c'
+const sender_address = '0x8CeaA0E58DE227fCC7171988A9807e234843a0E4'
+const sponsor_address = '0x5Bc4e9F33f6eD2DaF7eBeB0FE75d57A6CaDC79aC'
+const GAS_LIMIT = 1000000;
+
+const treeChain = new web3.eth.Contract(require('../bc/build/contracts/TreeChain.json').abi, contract_address);
 
 
-// treeChain.methods.addProject('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 1000, 50, 50)
-// .send({from: '0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', gas: 100000}).then(console.log);
+async function initialize_project() {
 
-// treeChain.methods.getGoal('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
+  await treeChain.methods.addProject(project_address, 10, 99, 99)
+  .send({from: sender_address, gas: GAS_LIMIT});
 
-// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
-// treeChain.methods.plant('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 100, 50, 50)
-// .send({from: '0x4E10D8Ee2FcBECE3c526Bdfc51d16DAb25c8A372', gas: 1000000}).then(console.log);
-// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
+  await treeChain.methods.getGoal(project_address).call().then(console.log);
+
+  console.log('Initial project balance');
+  await treeChain.methods.getBalance(project_address).call().then(console.log);
+
+  // Fill balance of sponsor
+  await treeChain.methods.fillBalance(sponsor_address, 100000)
+  .send({from: sender_address, gas: GAS_LIMIT});
+
+  console.log('Sponsor balance after filling');
+  await treeChain.methods.getBalance(sponsor_address).call().then(console.log);
+
+  // Sponsor project
+  await treeChain.methods.sponsor(project_address, 99999)
+  .send({from: sponsor_address, gas: GAS_LIMIT});
+
+  console.log('Sponsor balance after sponsoring');
+  await treeChain.methods.getBalance(sponsor_address).call().then(console.log);
+
+  console.log('Project balance after sponsoring');
+  await treeChain.methods.getBalance(project_address).call().then(console.log);
 
 
-// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
-treeChain.methods.verify('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 2, true)
-.send({from: '0x4E10D8Ee2FcBECE3c526Bdfc51d16DAb25c8A372', gas: 1000000}).then(console.log);
-// treeChain.methods.getVerified('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a').call().then(console.log);
+  // Trust sender as verifier
+  await treeChain.methods.setVerifier(sender_address, 1000)
+  .send({from: sender_address, gas: GAS_LIMIT});
+  
+  
+  // await treeChain.methods.verify(project_address, 1, true)
+  // .send({from: sender_address, gas: GAS_LIMIT});
+  
+  // await treeChain.methods.getVerified(project_address).call().then(console.log);
+
+  
+  // await treeChain.methods.plant(project_address, 9, 99,  99)
+  // .send({from: sender_address, gas: GAS_LIMIT});
+
+  // await treeChain.methods.getVerified(project_address).call().then(console.log);
+
+  // await treeChain.methods.verify(project_address, 5, true)
+  // .send({from: sender_address, gas: GAS_LIMIT});
+  
+  // await treeChain.methods.getVerified(project_address).call().then(console.log);
+
+  // await treeChain.methods.getVerifier(sender_address).call().then(console.log);
+
+  // await treeChain.methods.getBalance(sender_address).call().then(console.log);
+
+  // await treeChain.methods.getScore(project_address, 7).call().then(console.log);
+
+  // await treeChain.methods.getScore(project_address, 5).call().then(console.log);
+
+  // await treeChain.methods.getScore(project_address, 0).call().then(console.log);
+
+  // await treeChain.methods.getBalance(project_address).call().then(console.log);
 
 
+}
+
+initialize_project();
+
+
+async function plantTrees(project, n_trees, x, y, sender) {
+  await treeChain.methods.plant(project, n_trees, x, y)
+  .send({from: sender, gas: GAS_LIMIT});
+}
+
+async function verifyTrees(project, tree_id, existing, sender) {
+  await treeChain.methods.verify(project, tree_id, existing)
+  .send({from: sender, gas: GAS_LIMIT});
+}
+
+
+ 
 const PORT = 5000;
 const app = express();
 // Parse incoming requests data
@@ -91,9 +147,9 @@ app.post('/api/v1/tree', (req, res) => {
       message: 'Invalid request!'
     });
   }
-
-treeChain.methods.plant('0xE5d6b367ec0f8550e45f9E393d40298C2fA6616a', 100, 50, 50)
-.send({from: '0x4E10D8Ee2FcBECE3c526Bdfc51d16DAb25c8A372', gas: 1000000}).then(console.log);
+  
+  //pass project address. Are req.x req.y  cooordinates??
+  plantTrees(project_address, 1, req.body.x, req.body.y, sender_address) 
   console.log('Tree added ' + req.body);
 
   return res.status(201).send({
@@ -110,6 +166,9 @@ app.post('/api/v1/verify', (req, res) => {
     });
   }
 
+  // Existing option??!
+  const tree_id = 0;
+  verifyTrees(project_address, tree_id, existing, sender_address);
   console.log('Tree verified ' + req.body);
 
   return res.status(201).send({
